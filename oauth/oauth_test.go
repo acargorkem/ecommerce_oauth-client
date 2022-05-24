@@ -10,6 +10,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	accessTokenId = "test"
+)
+
+var (
+	fakeUrl = baseUrl + "/oauth/access_token/" + accessTokenId
+)
+
 func TestMain(m *testing.M) {
 	mockClient := oauthRestClient.GetClient()
 	mockClient.Transport = httpmock.DefaultTransport
@@ -127,8 +135,6 @@ func TestAuthentiaceRequestWithoutQueryParam(t *testing.T) {
 func TestAuthentiaceRequestNotFound(t *testing.T) {
 	httpmock.Reset()
 	defer httpmock.DeactivateAndReset()
-	accessTokenId := "1234"
-
 	request, _ := http.NewRequest("GET", baseUrl, nil)
 
 	q := request.URL.Query()
@@ -137,7 +143,6 @@ func TestAuthentiaceRequestNotFound(t *testing.T) {
 
 	responseBody := rest_errors.NewNotFoundError("not found")
 	responder := httpmock.NewJsonResponderOrPanic(404, responseBody)
-	fakeUrl := baseUrl + "/oauth/access_token"
 	httpmock.RegisterResponder("GET", fakeUrl, responder)
 
 	authErr := AuthenticateRequest(request)
@@ -149,7 +154,6 @@ func TestAuthentiaceRequestNotFound(t *testing.T) {
 func TestAuthentiaceRequestClientError(t *testing.T) {
 	httpmock.Reset()
 	defer httpmock.DeactivateAndReset()
-	accessTokenId := "1234"
 
 	request, _ := http.NewRequest("GET", baseUrl, nil)
 
@@ -159,7 +163,6 @@ func TestAuthentiaceRequestClientError(t *testing.T) {
 
 	responseBody := rest_errors.NewBadRequestError("bad request")
 	responder := httpmock.NewJsonResponderOrPanic(400, responseBody)
-	fakeUrl := baseUrl + "/oauth/access_token"
 	httpmock.RegisterResponder("GET", fakeUrl, responder)
 
 	authErr := AuthenticateRequest(request)
@@ -173,7 +176,6 @@ func TestAuthentiaceRequestClientError(t *testing.T) {
 func TestAuthentiaceRequestSuccessful(t *testing.T) {
 	httpmock.Reset()
 	defer httpmock.DeactivateAndReset()
-	accessTokenId := "1234"
 
 	request, _ := http.NewRequest("GET", baseUrl, nil)
 
@@ -187,7 +189,6 @@ func TestAuthentiaceRequestSuccessful(t *testing.T) {
 		ClientId: 345,
 	}
 	responder := httpmock.NewJsonResponderOrPanic(200, responseBody)
-	fakeUrl := baseUrl + "/oauth/access_token"
 	httpmock.RegisterResponder("GET", fakeUrl, responder)
 
 	authErr := AuthenticateRequest(request)
@@ -200,7 +201,6 @@ func TestGetAccessTokenInternalServerError(t *testing.T) {
 	httpmock.Reset()
 	defer httpmock.DeactivateAndReset()
 
-	accessTokenId := "123"
 	responseBody := rest_errors.NewInternalServerError(getAccessTokenInternalErrorMessage, rest_errors.NewError("rest_client_error"))
 	responder := httpmock.NewJsonResponderOrPanic(500, responseBody)
 	fakeUrl := baseUrl + "/oauth/access_token"
@@ -218,10 +218,8 @@ func TestGetAccessTokenResponseError(t *testing.T) {
 	httpmock.Reset()
 	defer httpmock.DeactivateAndReset()
 
-	accessTokenId := "123"
 	responseBody := rest_errors.NewBadRequestError("bad request")
 	responder := httpmock.NewJsonResponderOrPanic(400, responseBody)
-	fakeUrl := baseUrl + "/oauth/access_token"
 	httpmock.RegisterResponder("GET", fakeUrl, responder)
 
 	at, err := getAccessToken(accessTokenId)
@@ -236,14 +234,12 @@ func TestGetAccessTokenSuccessful(t *testing.T) {
 	httpmock.Reset()
 	defer httpmock.DeactivateAndReset()
 
-	accessTokenId := "123"
 	responseBody := accessToken{
 		Id:       accessTokenId,
 		UserId:   234,
 		ClientId: 345,
 	}
 	responder := httpmock.NewJsonResponderOrPanic(200, responseBody)
-	fakeUrl := baseUrl + "/oauth/access_token"
 	httpmock.RegisterResponder("GET", fakeUrl, responder)
 
 	at, err := getAccessToken(accessTokenId)
