@@ -106,7 +106,7 @@ func getAccessToken(accessTokenId string) (*accessToken, *rest_errors.RestErr) {
 		SetPathParam("access_token_id", accessTokenId).
 		SetResult(&at).
 		SetError(&restErr).
-		Get("/oauth/access_token")
+		Get("/oauth/access_token/{access_token_id}")
 	if err != nil {
 		return nil, rest_errors.NewInternalServerError(getAccessTokenInternalErrorMessage, rest_errors.NewError("rest_client_error"))
 	}
